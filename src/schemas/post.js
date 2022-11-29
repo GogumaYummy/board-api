@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const articlesSchema = new mongoose.Schema({
+const postsSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
@@ -9,7 +9,7 @@ const articlesSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  createdBy: {
+  user: {
     type: String,
     required: true,
   },
@@ -23,4 +23,4 @@ const articlesSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Articles', articlesSchema);
+module.exports = mongoose.model('Posts', postsSchema);

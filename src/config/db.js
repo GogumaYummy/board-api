@@ -1,15 +1,12 @@
 const mongoose = require('mongoose');
 const logger = require('./logger');
-const { dbUser, dbPassword, dbHost, env } = require('./vars');
+const { dbUser, dbPassword, dbHost, env, dbName } = require('./vars');
 
 const connect = () => {
-  const uri = `mongodb+srv://${dbUser}:${dbPassword}@${dbHost}/?retryWrites=true&w=majority`;
-  const options = {
-    dbName: 'board',
-  };
+  const uri = `mongodb+srv://${dbUser}:${dbPassword}@${dbHost}/${dbName}?retryWrites=true&w=majority`;
 
   mongoose
-    .connect(uri, options)
+    .connect(uri)
     .then(() => {
       logger.info('MongoDB connect success');
     })

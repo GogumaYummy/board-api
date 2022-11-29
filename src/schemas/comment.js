@@ -5,7 +5,7 @@ const commentsSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  createdBy: {
+  user: {
     type: String,
     required: true,
   },
@@ -17,6 +17,7 @@ const commentsSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  postId: mongoose.Types.ObjectId,
 });
 
 module.exports = mongoose.model('Comments', commentsSchema);

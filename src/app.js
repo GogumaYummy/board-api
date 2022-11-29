@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const logger = require('./config/logger');
 const { env } = require('./config/vars');
 const error = require('./middlewares/error');
-const v1 = require('./routes/v1');
+const api = require('./routes');
 
 const app = express();
 
@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cors());
 
-app.use('/v1', v1);
+app.use('/', api);
 
 app.use(error.converter);
 app.use(error.handler);
