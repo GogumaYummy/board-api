@@ -3,7 +3,7 @@ const { env } = require('./vars');
 
 const logger = createLogger({
   level: 'info',
-  format: format.combine(format.timestamp(), format.prettyPrint()),
+  format: format.combine(format.timestamp(), format.json()),
   transports: [
     new transports.File({
       dirname: 'logs',
