@@ -20,6 +20,7 @@ app.use(cors());
 
 app.use('/v1', v1);
 
+app.use(error.converter);
 app.use(error.handler);
 
 module.exports = app;
