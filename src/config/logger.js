@@ -3,9 +3,17 @@ const { env } = require('./vars');
 
 const logger = createLogger({
   level: 'info',
+  format: format.combine(format.timestamp(), format.prettyPrint()),
   transports: [
-    new transports.File({ filename: 'error.log', level: 'error' }),
-    new transports.File({ filename: 'logs.log' }),
+    new transports.File({
+      dirname: 'logs',
+      filename: 'error.log',
+      level: 'error',
+    }),
+    new transports.File({
+      dirname: 'logs',
+      filename: 'combined.log',
+    }),
   ],
 });
 
