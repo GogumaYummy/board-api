@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const Comments = require('../schemas/comment');
 const { isValidObjectId } = require('mongoose');
 const ApiError = require('../utils/error');
