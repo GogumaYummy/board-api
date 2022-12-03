@@ -1,28 +1,17 @@
 const { Router } = require('express');
-const bcrypt = require('bcryptjs');
-const Posts = require('../schemas/post');
-const { isValidObjectId } = require('mongoose');
 const ApiError = require('../utils/error');
+const { Post, Comment } = require('../db/models');
 
 const router = Router();
 
 router.post('/', async (req, res, next) => {
   try {
-    const { user, password, title, content } = req.body;
+    const { title, content } = req.body;
 
-    if (!user || !password || !title || !content)
+    if (!title || !content)
       throw new ApiError(400, '데이터 형식이 올바르지 않습니다.');
 
-    const hashed = await bcrypt.hash(password, 12);
-
-    const document = {
-      user,
-      password: hashed,
-      title,
-      content,
-    };
-
-    await Posts.create(document);
+    await Post.create({ title, content });
 
     res.status(201).json({ message: '게시글을 생성하였습니다.' });
   } catch (err) {
@@ -31,35 +20,30 @@ router.post('/', async (req, res, next) => {
 });
 
 router.get('/', async (req, res) => {
-  const filter = {};
-  const projection = { user: 1, title: 1, createdAt: 1 };
-  const options = { sort: { createdAt: -1 } };
-
-  const rawData = await Posts.find(filter, projection, options);
-
-  const result = rawData.map(({ _id, user, title, createdAt }) => {
-    return { postId: _id, user, title, createdAt };
+  const posts = await Post.findAll({
+    attributes: ['postId', 'title', 'createdAt', 'updatedAt'],
   });
 
-  res.status(200).json({ data: result });
+  res.status(200).json({ data: posts });
 });
 
 router.get('/:postId', async (req, res, next) => {
   try {
     const { postId } = req.params;
 
-    if (!isValidObjectId(postId))
+    if (isNaN(postId))
       throw new ApiError(400, '데이터 형식이 올바르지 않습니다.');
 
-    const projection = { user: 1, title: 1, content: 1, createdAt: 1 };
-    const rawData = await Posts.findById(postId, projection);
+    const post = await Post.findByPk(postId, {
+      include: {
+        model: Comment,
+        attributes: ['commentId', 'content', 'createdAt', 'updatedAt'],
+      },
+    });
 
-    if (!rawData) throw new ApiError(404, '게시글 조회에 실패하였습니다.');
+    if (!post) throw new ApiError(404, '게시글 조회에 실패하였습니다.');
 
-    const { _id, user, title, content, createdAt } = rawData;
-    const result = { postId: _id, user, title, content, createdAt };
-
-    res.status(200).json({ data: result });
+    res.status(200).json({ data: post });
   } catch (err) {
     next(err);
   }
@@ -67,25 +51,17 @@ router.get('/:postId', async (req, res, next) => {
 
 router.put('/:postId', async (req, res, next) => {
   try {
-    const { password, title, content } = req.body;
+    const { title, content } = req.body;
     const { postId } = req.params;
 
-    if (!title || !content || !password || !isValidObjectId(postId))
+    if (!title || !content || isNaN(postId))
       throw new ApiError(400, '데이터 형식이 올바르지 않습니다.');
 
-    const projection = { _id: 0, password: 1 };
-    const post = await Posts.findById(postId, projection);
+    const post = await Post.findByPk(postId);
 
     if (!post) throw new ApiError(404, '게시글 조회에 실패하였습니다.');
 
-    const comparisonResult = await bcrypt.compare(password, post.password);
-
-    if (!comparisonResult) throw new ApiError(401, '잘못된 비밀번호입니다.');
-
-    const filter = { _id: postId };
-    const update = { title, content };
-
-    await Posts.updateOne(filter, update);
+    await post.update({ title, content });
 
     res.status(200).json({ message: '게시글을 수정하였습니다.' });
   } catch (err) {
@@ -95,24 +71,16 @@ router.put('/:postId', async (req, res, next) => {
 
 router.delete('/:postId', async (req, res, next) => {
   try {
-    const { password } = req.body;
     const { postId } = req.params;
 
-    if (!password || !isValidObjectId(postId))
+    if (isNaN(postId))
       throw new ApiError(400, '데이터 형식이 올바르지 않습니다.');
 
-    const projection = { _id: 0, password: 1 };
-    const post = await Posts.findById(postId, projection);
+    const post = await Post.findByPk(postId);
 
     if (!post) throw new ApiError(404, '게시글 조회에 실패하였습니다.');
 
-    const comparisonResult = await bcrypt.compare(password, post.password);
-
-    if (!comparisonResult) throw new ApiError(401, '잘못된 비밀번호입니다.');
-
-    const filter = { _id: postId };
-
-    await Posts.deleteOne(filter);
+    await Post.destroy({ where: { postId } });
 
     res.status(200).json({ message: '게시글을 삭제하였습니다.' });
   } catch (err) {
