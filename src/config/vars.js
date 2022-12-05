@@ -13,4 +13,5 @@ module.exports = {
   dbPassword: process.env.DB_PASSWORD,
   dbHost: process.env.DB_HOST,
   dbDatabase: process.env.DB_DATABASE,
+  jwtSecret: process.env.JWT_SECRET,
 };

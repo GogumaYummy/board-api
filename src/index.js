@@ -4,7 +4,7 @@ const vars = require('./config/vars');
 const db = require('./db/models');
 
 db.sequelize
-  .sync({ force: false })
+  .sync({ force: false, alter: true })
   .then(() => {
     logger.info('MySQL connect success');
   })

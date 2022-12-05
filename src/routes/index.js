@@ -1,13 +1,14 @@
 const { Router } = require('express');
-
-const posts = require('./posts');
-const comments = require('./comments');
 const rateLimiter = require('../middlewares/rateLimiter');
+const postsRouter = require('./posts');
+const commentsRouter = require('./comments');
+const authRouter = require('./auth');
 
 const router = Router();
 
 router.get('/', (req, res) => res.send('OK'));
-router.use('/posts', rateLimiter, posts);
-router.use('/comments', rateLimiter, comments);
+router.use('/posts', rateLimiter, postsRouter);
+router.use('/comments', rateLimiter, commentsRouter);
+router.use('/', rateLimiter, authRouter);
 
 module.exports = router;
