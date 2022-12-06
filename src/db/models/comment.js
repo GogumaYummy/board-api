@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.User, { foreignKey: 'userId' });
     }
   }
+
   Comment.init(
     {
       commentId: {

@@ -69,6 +69,8 @@ router.get('/:postId', async (req, res, next) => {
       raw: true,
     });
 
+    console.log(post);
+
     post.nickname = post['User.nickname'];
     delete post['User.nickname'];
 

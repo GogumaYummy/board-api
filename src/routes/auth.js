@@ -52,7 +52,7 @@ router.post('/login', isNotLoggedIn, async (req, res, next) => {
       throw new ApiError(412, '닉네임 또는 패스워드를 확인해주세요.');
 
     const token = jwt.sign({ userId: user.userId }, jwtSecret, {
-      expiresIn: new Date().getUTCSeconds() + 30,
+      expiresIn: 60 * 60,
     });
 
     res.status(200).cookie('accessToken', token).json({ token });
