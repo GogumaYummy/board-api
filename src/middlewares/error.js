@@ -12,7 +12,7 @@ const converter = (err, req, res, next) => {
 
 const handler = (err, req, res, next) => {
   const response = {
-    message: err.message || httpStatus[err.statusCode],
+    errorMessage: err.message || httpStatus[err.statusCode],
   };
 
   if (vars.env === 'development') {

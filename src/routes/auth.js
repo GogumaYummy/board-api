@@ -5,10 +5,11 @@ const jwt = require('jsonwebtoken');
 const ApiError = require('../utils/error');
 const { User } = require('../db/models');
 const { jwtSecret } = require('../config/vars');
+const { isNotLoggedIn } = require('../middlewares/auth');
 
 const router = Router();
 
-router.post('/signup', async (req, res, next) => {
+router.post('/signup', isNotLoggedIn, async (req, res, next) => {
   try {
     const { nickname, password, confirm } = req.body;
     const existUser = await User.findOne({ where: { nickname } });
@@ -37,7 +38,7 @@ router.post('/signup', async (req, res, next) => {
   }
 });
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', isNotLoggedIn, async (req, res, next) => {
   try {
     const { nickname, password } = req.body;
 
