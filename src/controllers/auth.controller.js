@@ -20,9 +20,9 @@ exports.signup = async (req, res, next) => {
     if (password.includes(nickname))
       throw new ApiError(412, '패스워드에 닉네임이 포함되어 있습니다.');
 
-    const hashed = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    await User.create({ nickname, password: hashed });
+    await User.create({ nickname, password: hashedPassword });
 
     res.status(201).json({ message: '회원 가입에 성공하였습니다.' });
   } catch (err) {

@@ -9,9 +9,9 @@ exports.createComment = async (req, res, next) => {
   try {
     const { postId } = req.params;
     const { content } = req.body;
-    const { userId } = jwt.decode(req.cookies.accessToken);
+    const { userId } = res.locals;
 
-    if (!content || isNaN(postId))
+    if (isNaN(postId))
       throw new ApiError(412, '데이터 형식이 올바르지 않습니다.');
 
     const post = await Post.findByPk(postId);
@@ -57,9 +57,9 @@ exports.updateComment = async (req, res, next) => {
   try {
     const { content } = req.body;
     const { commentId } = req.params;
-    const { userId } = jwt.decode(req.cookies.accessToken);
+    const { userId } = req.locals;
 
-    if (!content || isNaN(commentId))
+    if (isNaN(commentId))
       throw new ApiError(412, '데이터 형식이 올바르지 않습니다.');
 
     const comment = await Comment.findByPk(commentId);
@@ -83,7 +83,7 @@ exports.updateComment = async (req, res, next) => {
 exports.deleteComment = async (req, res, next) => {
   try {
     const { commentId } = req.params;
-    const { userId } = jwt.decode(req.cookies.accessToken);
+    const { userId } = req.locals;
 
     if (isNaN(commentId))
       throw new ApiError(400, '데이터 형식이 올바르지 않습니다.');

@@ -5,7 +5,7 @@ const ApiError = require('../utils/error');
 
 const isLoggedIn = (req, res, next) => {
   try {
-    jwt.verify(req.cookies.accessToken, jwtSecret);
+    res.locals.userId = jwt.verify(req.cookies.accessToken, jwtSecret);
     next();
   } catch {
     next(new ApiError(401, '로그인이 필요합니다.'));

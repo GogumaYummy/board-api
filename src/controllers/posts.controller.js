@@ -7,7 +7,7 @@ const { Post, User, sequelize } = require('../db/models');
 exports.likePost = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const { userId } = jwt.decode(req.cookies.accessToken);
+    const { userId } = req.locals;
 
     const post = await Post.findByPk(postId);
 
@@ -32,7 +32,7 @@ exports.likePost = async (req, res, next) => {
 
 exports.readLikedPosts = async (req, res, next) => {
   try {
-    const { userId } = jwt.decode(req.cookies.accessToken);
+    const { userId } = req.locals;
 
     const user = await User.findByPk(userId);
     const posts = await user.getLikedPost({
@@ -70,16 +70,7 @@ exports.readLikedPosts = async (req, res, next) => {
 exports.createPost = async (req, res, next) => {
   try {
     const { title, content } = req.body;
-    const { userId } = jwt.decode(req.cookies.accessToken);
-
-    if (!title && !content)
-      throw new ApiError(412, '데이터 형식이 올바르지 않습니다.');
-    else {
-      if (!title)
-        throw new ApiError(412, '게시글 제목의 형식이 일치하지 않습니다.');
-      if (!content)
-        throw new ApiError(412, '게시글 내용의 형식이 일치하지 않습니다.');
-    }
+    const { userId } = req.locals;
 
     const user = await User.findByPk(userId);
 
@@ -151,16 +142,7 @@ exports.updatePost = async (req, res, next) => {
   try {
     const { title, content } = req.body;
     const { postId } = req.params;
-    const { userId } = jwt.decode(req.cookies.accessToken);
-
-    if ((!title && !content) || isNaN(postId))
-      throw new ApiError(412, '데이터 형식이 올바르지 않습니다.');
-    else {
-      if (!title)
-        throw new ApiError(412, '게시글 제목의 형식이 일치하지 않습니다.');
-      if (!content)
-        throw new ApiError(412, '게시글 내용의 형식이 일치하지 않습니다.');
-    }
+    const { userId } = req.locals;
 
     const post = await Post.findByPk(postId);
     const user = await User.findByPk(userId);
@@ -183,7 +165,7 @@ exports.updatePost = async (req, res, next) => {
 exports.deletePost = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const { userId } = jwt.decode(req.cookies.accessToken);
+    const { userId } = req.locals;
 
     const post = await Post.findByPk(postId);
     const user = await User.findByPk(userId);
