@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const ApiError = require('../utils/error');
 const { User } = require('../db/models');
-const { jwtSecret } = require('../config/vars');
+const { jwtSecret, passwordSalt } = require('../config/vars');
 
 exports.signup = async (req, res, next) => {
   try {
@@ -20,7 +20,7 @@ exports.signup = async (req, res, next) => {
     if (password.includes(nickname))
       throw new ApiError(412, '패스워드에 닉네임이 포함되어 있습니다.');
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(password, passwordSalt);
 
     await User.create({ nickname, password: hashedPassword });
 
