@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Comment, { foreignKey: 'userId' });
       this.belongsToMany(models.Post, {
         through: 'LikedPosts',
+        as: 'likedPost',
         foreignKey: 'userId',
       });
     }
@@ -24,7 +25,6 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'User',
-      updatedAt: false,
     }
   );
   return User;
