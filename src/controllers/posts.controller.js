@@ -51,7 +51,10 @@ exports.readLikedPosts = async (req, res, next) => {
         { model: User, as: 'userLiked', attributes: [] },
       ],
       group: 'postId',
-      order: [['postId', 'DESC']],
+      order: [
+        ['likes', 'DESC'],
+        ['postId', 'DESC'],
+      ],
     });
 
     res.status(200).json({ data: posts });

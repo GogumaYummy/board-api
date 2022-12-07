@@ -6,7 +6,7 @@ const authRouter = require('./auth');
 
 const router = Router();
 
-router.get('/', (req, res) => res.send('OK'));
+router.get('/', rateLimiter, (req, res) => res.send('OK'));
 router.use('/posts', rateLimiter, postsRouter);
 router.use('/comments', rateLimiter, commentsRouter);
 router.use('/', rateLimiter, authRouter);
