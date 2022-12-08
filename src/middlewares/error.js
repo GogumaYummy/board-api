@@ -1,14 +1,14 @@
 const httpStatus = require('http-status');
 const vars = require('../config/vars');
-const ApiError = require('../utils/error');
+const ApiError = require('../utils/apiError');
 const logger = require('../config/logger');
 
 const converter = (err, req, res, next) => {
   if (err instanceof ApiError) next(err);
   else if (err.isJoi)
-    next(new ApiError(412, '데이터 형식이 올바르지 않습니다.', err.stack));
+    next(new ApiError(412, err.details[0].context.label, err.stack));
   else {
-    const statusCode = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
+    const statusCode = err.statusCode || 400;
     const message = err.message || httpStatus[statusCode];
     next(new ApiError(statusCode, message, err.stack));
   }

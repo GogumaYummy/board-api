@@ -1,8 +1,8 @@
 const { Router } = require('express');
-const rateLimiter = require('../middlewares/rateLimiter');
-const postsRouter = require('./posts');
-const commentsRouter = require('./comments');
-const authRouter = require('./auth');
+const rateLimiter = require('../middlewares/rateLimiter.js');
+const postsRouter = require('./posts.route.js');
+const commentsRouter = require('./comments.route.js');
+const authRouter = require('./auth.route.js');
 
 const router = Router();
 

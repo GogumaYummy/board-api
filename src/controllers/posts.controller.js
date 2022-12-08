@@ -1,13 +1,10 @@
-const jwt = require('jsonwebtoken');
-const { BaseError } = require('sequelize');
-
-const ApiError = require('../utils/error');
+const ApiError = require('../utils/apiError');
 const { Post, User, sequelize } = require('../db/models');
 
 exports.likePost = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const { userId } = req.locals;
+    const { userId } = res.locals;
 
     const post = await Post.findByPk(postId);
 
@@ -25,14 +22,15 @@ exports.likePost = async (req, res, next) => {
       res.status(200).json({ message: '게시글의 좋아요를 등록하였습니다.' });
     }
   } catch (err) {
-    if (err instanceof ApiError) next(err);
-    else next(new ApiError(400, '게시글 좋아요에 실패하였습니다.', err.stack));
+    if (!(err instanceof ApiError))
+      err.message = '게시글 좋아요에 실패하였습니다.';
+    next(err);
   }
 };
 
 exports.readLikedPosts = async (req, res, next) => {
   try {
-    const { userId } = req.locals;
+    const { userId } = res.locals;
 
     const user = await User.findByPk(userId);
     const posts = await user.getLikedPost({
@@ -59,27 +57,28 @@ exports.readLikedPosts = async (req, res, next) => {
 
     res.status(200).json({ data: posts });
   } catch (err) {
-    if (err instanceof ApiError) next(err);
-    else
-      next(
-        new ApiError(400, '좋아요 게시글 조회에 실패하였습니다.', err.stack)
-      );
+    if (!(err instanceof ApiError))
+      err.message = '좋아요 게시글 조회에 실패하였습니다.';
+    next(err);
   }
 };
 
 exports.createPost = async (req, res, next) => {
   try {
     const { title, content } = req.body;
-    const { userId } = req.locals;
+    const { userId } = res.locals;
 
     const user = await User.findByPk(userId);
 
-    await Post.create({ title, content, userId: user.userId });
+    if (!user) throw new Error();
+
+    await Post.create({ title, content, userId });
 
     res.status(201).json({ message: '게시글 작성에 성공하였습니다.' });
   } catch (err) {
-    if (err instanceof ApiError) next(err);
-    else next(new ApiError(400, '게시글 작성에 실패하였습니다.', err.stack));
+    if (!(err instanceof ApiError))
+      err.message = '게시글 작성에 실패하였습니다.';
+    next(err);
   }
 };
 
@@ -105,8 +104,9 @@ exports.readPosts = async (req, res, next) => {
 
     res.status(200).json({ data: posts });
   } catch (err) {
-    if (err instanceof ApiError) next(err);
-    else next(new ApiError(400, '게시글 조회에 실패하였습니다.', err.stack));
+    if (!(err instanceof ApiError))
+      err.message = '게시글 조회에 실패하였습니다.';
+    next(err);
   }
 };
 
@@ -129,12 +129,16 @@ exports.readPost = async (req, res, next) => {
         { model: User, attributes: [] },
         { model: User, as: 'userLiked', attributes: [] },
       ],
+      group: 'postId',
     });
+
+    if (!post) throw new Error();
 
     res.status(200).json({ data: post });
   } catch (err) {
-    if (err instanceof ApiError) next(err);
-    else next(new ApiError(400, '게시글 조회에 실패하였습니다.', err.stack));
+    if (!(err instanceof ApiError))
+      err.message = '게시글 조회에 실패하였습니다.';
+    next(err);
   }
 };
 
@@ -142,30 +146,27 @@ exports.updatePost = async (req, res, next) => {
   try {
     const { title, content } = req.body;
     const { postId } = req.params;
-    const { userId } = req.locals;
+    const { userId } = res.locals;
 
     const post = await Post.findByPk(postId);
     const user = await User.findByPk(userId);
 
-    if (post.userId !== user.userId) throw new Error();
+    if (!post || !user || post.userId !== user.userId) throw new Error();
 
     await post.update({ title, content });
 
     res.status(200).json({ message: '게시글을 수정하였습니다.' });
   } catch (err) {
-    if (err instanceof ApiError) next(err);
-    else if (err instanceof BaseError)
-      next(
-        new ApiError(401, '게시글이 정상적으로 수정되지 않았습니다.', err.stack)
-      );
-    else next(new ApiError(400, '게시글 수정에 실패하였습니다.', err.stack));
+    if (!(err instanceof ApiError))
+      err.message = '게시글 수정에 실패하였습니다.';
+    next(err);
   }
 };
 
 exports.deletePost = async (req, res, next) => {
   try {
     const { postId } = req.params;
-    const { userId } = req.locals;
+    const { userId } = res.locals;
 
     const post = await Post.findByPk(postId);
     const user = await User.findByPk(userId);
@@ -173,13 +174,12 @@ exports.deletePost = async (req, res, next) => {
     if (!post) throw new ApiError(404, '게시글이 존재하지 않습니다.');
     if (post.userId !== user.userId) throw new Error();
 
-    await Post.destroy({ where: { postId } });
+    await post.destroy();
 
     res.status(200).json({ message: '게시글을 삭제하였습니다.' });
   } catch (err) {
-    if (err instanceof ApiError) next(err);
-    else if (err instanceof BaseError)
-      next(new ApiError(401, '게시글이 정상적으로 삭제되지 않았습니다.'));
-    else next(new ApiError(400, '게시글 작성에 실패하였습니다.', err.stack));
+    if (!(err instanceof ApiError))
+      err.message = '게시글 작성에 실패하였습니다.';
+    next(err);
   }
 };
